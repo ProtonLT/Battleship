@@ -13,6 +13,7 @@ public class Driver {
 		Driver a = new Driver();
 		a.initBoards();
 		a.initGame();
+		System.out.println("testing commits");
 		//a.printBoard(a.attack1);
 		//a.printBoard(a.attack2);
 	}
