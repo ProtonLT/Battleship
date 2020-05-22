@@ -1,7 +1,8 @@
 package battleship;
 import java.util.Scanner;
+import javax.swing.JFrame;
 
-public class Driver {
+public class Driver extends JFrame{
 
 	Space[][] attack1 = new Space[10][10];
 	Space[][] defend1 = new Space[10][10];
@@ -12,11 +13,12 @@ public class Driver {
 
 	public static void main(String[] args)
 	{
+		System.out.println("BATTLESHIP");
 		Scanner input = new Scanner(System.in);
 		Driver a = new Driver();
 		a.initBoards();
-		a.test();
-		//a.initGame(input);
+		//a.test();
+		a.initGame(input);
 		a.run(input);
 		//a.printBoard(a.attack1);
 		//a.printBoard(a.attack2);
@@ -103,7 +105,7 @@ public class Driver {
 							isDigit = true;
 					if(letToNum(xStr) == -1 || !isDigit)
 					{
-						System.out.println("X coordinate must be A - J, Y coordinate must be 1 - 10.");
+						System.out.println("X coordinate must be A - J, Y coordinate must be 0 - 9.");
 						check = true;
 					}
 					else
@@ -132,7 +134,7 @@ public class Driver {
 				{
 					if(xcoord > 9 || ycoord + ship.getSize().length > 9)// check if coordinates are out of bounds
 					{
-						System.out.println("Coordinate out of boudns.");
+						System.out.println("Coordinate out of bounds.");
 						check1 = true;
 					}
 					else
@@ -248,7 +250,7 @@ public class Driver {
 				{
 					if(xcoord > 9 || ycoord + ship.getSize().length > 9)// check if coordinates are out of bounds
 					{
-						System.out.println("Coordinate out of boudns.");
+						System.out.println("Coordinate out of bounds.");
 						check1 = true;
 					}
 					else
@@ -312,8 +314,9 @@ public class Driver {
 
 	public void run(Scanner input)
 	{
-		boolean won = false;
-		while(!won)
+		int player1Health = 5;
+		int player2Health = 5;
+		while(player1Health != 0 && player2Health != 0)
 		{
 			printBoard(attack1);
 			int xcoord = 0;
@@ -342,6 +345,12 @@ public class Driver {
 					xcoord = Integer.parseInt(yStr); //I accidentally put x and y backwards so
 					ycoord = letToNum(xStr); //I switched x and y coords here
 				}
+				if(attack1[xcoord][ycoord].getIsHit())
+				{
+					System.out.println("Cannot fire on space already targeted.");
+					check = true;
+					continue;
+				}
 			}
 			defend2[xcoord][ycoord].setIsHit(true);
 			if(defend2[xcoord][ycoord].getIsShip())
@@ -349,18 +358,87 @@ public class Driver {
 				attack1[xcoord][ycoord].setIsHit(true);
 				attack1[xcoord][ycoord].setIsShip(true);
 				defend2[xcoord][ycoord].takeDamage();
-				System.out.println(defend2[xcoord][ycoord].getParent().getHealth());
+				//System.out.println(defend2[xcoord][ycoord].getParent().getHealth());
 				System.out.println("Hit!");
 				if(defend2[xcoord][ycoord].getParent().getHealth() == 0) //error line
+				{
 					System.out.println(defend2[xcoord][ycoord].getParent().getName() + " sunk!");
+					player2Health--;
+					if(player2Health == 0)
+						continue;
+				}
 			}
 			else
 			{
 				attack1[xcoord][ycoord].setIsHit(true);
 				System.out.println("Miss!");
 			}
-			printBoard(defend2);
+			//printBoard(defend2);
+			
+			//PLAYER 2 ATTACK
+			printBoard(attack2);
+			xcoord = 0;
+			ycoord = 0;
+			System.out.println("Player 2, choose target.");
+			check = true;
+			while(check)  //while loop to check that coordinates inputed are viable
+			{
+				check = false;
+				//ship.printSize();
+				System.out.println("x: ");
+				String xStr = input.nextLine();
+				System.out.println("y: ");	
+				String yStr = input.nextLine();
+				boolean isDigit = false;
+				if(yStr.length() == 1)
+					if(Character.isDigit(yStr.charAt(0)))
+						isDigit = true;
+				if(letToNum(xStr) == -1 || !isDigit)
+				{
+					System.out.println("X coordinate must be A - J, Y coordinate must be 0 - 9.");
+					check = true;
+				}
+				else
+				{
+					xcoord = Integer.parseInt(yStr); //I accidentally put x and y backwards so
+					ycoord = letToNum(xStr); //I switched x and y coords here
+				}
+				if(attack2[xcoord][ycoord].getIsHit())
+				{
+					System.out.println("Cannot fire on space already targeted.");
+					check = true;
+					continue;
+				}
+			}
+			defend1[xcoord][ycoord].setIsHit(true);
+			if(defend1[xcoord][ycoord].getIsShip())
+			{
+				attack2[xcoord][ycoord].setIsHit(true);
+				attack2[xcoord][ycoord].setIsShip(true);
+				defend1[xcoord][ycoord].takeDamage();
+				//System.out.println(defend1[xcoord][ycoord].getParent().getHealth());
+				System.out.println("Hit!");
+				if(defend1[xcoord][ycoord].getParent().getHealth() == 0) //error line
+				{
+					System.out.println(defend1[xcoord][ycoord].getParent().getName() + " sunk!");
+					player1Health--;
+				}
+			}
+			else
+			{
+				attack2[xcoord][ycoord].setIsHit(true);
+				System.out.println("Miss!");
+			}
+			//printBoard(defend2);
 		}
+		if(player1Health == 0)
+			System.out.println("Player 2 Wins!!");
+		else
+			System.out.println("Player 1 Wins!!");
+		System.out.println("Player 1's Board: ");
+		printBoard(defend1);
+		System.out.println("Player 2's Board");
+		printBoard(defend2);
 	}
 
 	public void printBoard(Space[][] board)
@@ -397,8 +475,7 @@ public class Driver {
 
 	public int letToNum(String letter)
 	{
-		letter = letter.toUpperCase();
-		switch(letter)
+		switch(letter.toUpperCase())
 		{
 		case "A":
 			return 0;
