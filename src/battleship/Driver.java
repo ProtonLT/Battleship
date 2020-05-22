@@ -1,8 +1,7 @@
 package battleship;
 import java.util.Scanner;
-import javax.swing.JFrame;
 
-public class Driver extends JFrame{
+public class Driver{
 
 	Space[][] attack1 = new Space[10][10];
 	Space[][] defend1 = new Space[10][10];
